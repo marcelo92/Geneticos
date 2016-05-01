@@ -1,6 +1,7 @@
 /*Parametros*/
 var torneioSize = 5;
 var mutationRate = 0.15;
+var populacao = 5;
 
 /* Matriz de relacoes (singleton)*/
 var relacoes = (function(){
@@ -160,43 +161,74 @@ function checkDuplicateNumbers(salao){
 }
 
 function evolvePopulation(pop){
-	var salao1 = torneio(pop);
-	var salao2 = torneio(pop);	
-	
+	var pop2 = new Populacao();
+
+	for(var i = 0; i<pop.saloes.length; i++){
+		var salao1 = torneio(pop);
+		var salao2 = torneio(pop);	
+		var salao_filho = crossover(salao1, salao2);
+		pop2.saloes.push(salao_filho);
+	}
+
+	for(var i = 0; i<pop2.saloes.length; i++){
+		if(Math.random()>mutationRate){
+			mutacao(pop2.saloes[i]);
+		}
+	}
+	return pop2;
 }
 
-var global;
-function Main(matriz_relacoes, mesas, capacidade){
+function Main(){
+	var pop = getInput();
+	for(var i = 0; i<10; i++){
+		document.writeln(pop.soma());
+		pop = evolvePopulation(pop);
+	}
+
+}
+
+function getInput(){
+	var pessoas = 6;
+	var matriz_exemplo = [
+		[1, 10, 5, 0, 0, 0],
+		[10, 1, 3, 0, 0, 0],
+		[5, 3, 1, 1, 0,  0],
+		[0, 0, 0, 1, 10, 3],
+		[0, 0, 0, 10, 1, 7],
+		[0, 0, 0, 3, 7,  1],
+	];
+
 	var matriz = relacoes.getInstance();
-	matriz.setMatriz(matriz_relacoes);
-	var pop_inicial = new Populacao();
-	
-	var m1 = mesa();
-	m1.ocupantes = [0,1];
-	var m2 = mesa();
-	m2.ocupantes = [2,3];
-	var salao1 = salao();
-	salao1.mesas = [m1,m2];
+	matriz.setMatriz(matriz_exemplo);
+	var mesas = 3;
+	var capacidade = 2;
 
-	var m3 = mesa();
-	m3.ocupantes = [0,3];
-	var m4 = mesa();
-	m4.ocupantes = [1,2];
-	var salao2 = salao();
-	salao2.mesas = [m3,m4];
+	var pop_inicial = geraPopulacao(pessoas, mesas, capacidade);
+	return pop_inicial;
 
-
-	pop_inicial.saloes.push(salao1, salao2);
-	global = pop_inicial;
 
 }
 
-var matriz_exemplo = [
-	[1, 10, 0, 0],
-	[10, 1, 0, 0],
-	[0, 0, 1, 10],
-	[0, 0, 10, 1]
-];
-var mesas_exemplo = 2;
-var capacidade_exemplo = 2;
-Main(matriz_exemplo, mesas_exemplo, capacidade_exemplo);
+function geraPopulacao(pessoas, mesas, capacidade){
+	var pop_inicial = new Populacao();
+	var arr = [];
+	for(var i = 0; i<pessoas; i++){
+		arr[i]=i;
+	}
+	for(var i = 0; i<5; i++){
+		var salao1 = salao();
+		for(var i = 0; i<mesas; i++){
+			var mesa1 = mesa();
+			for(var j = 0; j<capacidade; j++){
+				var ind = (Math.random()*arr.length).toFixed(0);
+				mesa1.ocupantes.push(arr[ind]);
+				arr.splice(ind, 1);
+			}
+			salao1.mesas.push(mesa1);
+		}
+		pop_inicial.saloes.push(salao1);
+	}
+
+	return pop_inicial;
+}
+//Main(matriz_exemplo, mesas_exemplo, capacidade_exemplo);
