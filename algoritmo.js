@@ -77,10 +77,10 @@ var mesa = function(){
 function torneio(pop){
 	var pop_torneio = new Populacao();
 	for(var i = 0;i<torneioSize; i++){
-		var rand = (Math.random()*pop.mesas.length).toFixed(0);
-		pop_torneio.mesas.push(pop.mesas[rand]);
+		var rand = (Math.random()*pop.saloes.length).toFixed(0);
+		pop_torneio.saloes.push(pop.saloes[rand]);
 	}
-	return pop_torneio.fittest;
+	return pop_torneio.fittest();
 }
 
 function crossover(salao1, salao2){
@@ -181,7 +181,7 @@ function evolvePopulation(pop){
 function Main(){
 	var pop = getInput();
 	for(var i = 0; i<10; i++){
-		document.writeln(pop.soma());
+		document.writeln(pop.fittest());
 		pop = evolvePopulation(pop);
 	}
 
@@ -211,16 +211,17 @@ function getInput(){
 
 function geraPopulacao(pessoas, mesas, capacidade){
 	var pop_inicial = new Populacao();
-	var arr = [];
+	var contador = [];
 	for(var i = 0; i<pessoas; i++){
-		arr[i]=i;
+		contador[i]=i;
 	}
-	for(var i = 0; i<5; i++){
+	for(var i = 0; i<populacao; i++){
 		var salao1 = salao();
-		for(var i = 0; i<mesas; i++){
+		var arr = contador.slice();
+		for(var k = 0; k<mesas; k++){
 			var mesa1 = mesa();
 			for(var j = 0; j<capacidade; j++){
-				var ind = (Math.random()*arr.length).toFixed(0);
+				var ind = (Math.random()*(arr.length-1)).toFixed(0);
 				mesa1.ocupantes.push(arr[ind]);
 				arr.splice(ind, 1);
 			}
