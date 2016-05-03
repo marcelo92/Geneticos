@@ -1,7 +1,8 @@
 /*Parametros*/
 var torneioSize = 5;
 var mutationRate = 0.15;
-var populacao = 5;
+var populacao = 8;
+var elitismo = true;
 
 /* Matriz de relacoes (singleton)*/
 var relacoes = (function(){
@@ -29,6 +30,7 @@ var relacoes = (function(){
 
 var Populacao = function(){
 	this.saloes = [];
+
 	this.fittest = function(){
 		var fittest = 0;
 		for(var i = 0; i<this.saloes.length; i++){
@@ -38,6 +40,38 @@ var Populacao = function(){
 			}
 		};
 		return fittest;
+	}
+	
+	this.fittestSalao = function(){
+		var fittest = 0;
+		var index = 0;
+		for(var i = 0; i<this.saloes.length; i++){
+			var soma = this.saloes[i].soma();
+			if(fittest<soma){
+				fittest = soma;
+				index = i;
+			}
+		};
+		return this.saloes[index];	
+	}
+
+	this.indexOfFittest = function(){
+		var fittest = 0;
+		var index = 0;
+		for(var i = 0; i<this.saloes.length; i++){
+			var soma = this.saloes[i].soma();
+			if(fittest<soma){
+				fittest = soma;
+				index = i;
+			}
+		};
+		return index;		
+	}
+
+	this.printSaloes = function(){
+		for(var i = 0; i<this.saloes.length; i++){
+			this.saloes[i].printMesas();
+		}
 	}
 }
 
@@ -50,6 +84,15 @@ var salao = function(){
 			soma += that.mesas[i].soma();
 		}
 		return soma;
+	}
+
+	that.printMesas = function(){
+		var arrMesas = [];
+		for(var i = 0; i<that.mesas.length; i++){
+			arrMesas.push(that.mesas[i].ocupantes);
+		}
+		var soma = that.soma();
+		console.log(arrMesas.join(" ")+" ("+soma+")");
 	}
 
 	return that;
@@ -74,13 +117,20 @@ var mesa = function(){
 }
 
 
+/* Funcao auxiliar pro crossover*/
+function cloneMesa(obj){
+	copy = mesa();
+    copy.ocupantes = obj.ocupantes.slice();
+    return copy;
+}
+
 function torneio(pop){
 	var pop_torneio = new Populacao();
 	for(var i = 0;i<torneioSize; i++){
-		var rand = (Math.random()*pop.saloes.length).toFixed(0);
+		var rand = (Math.random()*(pop.saloes.length-1)).toFixed(0);
 		pop_torneio.saloes.push(pop.saloes[rand]);
 	}
-	return pop_torneio.fittest();
+	return pop_torneio.fittestSalao();
 }
 
 function crossover(salao1, salao2){
@@ -88,9 +138,9 @@ function crossover(salao1, salao2){
 	var mesa_random = (Math.random()*(salao1.mesas.length-1)).toFixed(0);
 	for(var i = 0; i<salao1.mesas.length; i++){
 		if(i<mesa_random){
-			salao_filho.mesas.push(salao1.mesas[i]);
+			salao_filho.mesas.push(cloneMesa(salao1.mesas[i]));
 		}else{
-			salao_filho.mesas.push(salao2.mesas[i]);
+			salao_filho.mesas.push(cloneMesa(salao2.mesas[i]));
 		}
 	}
 
@@ -162,16 +212,31 @@ function checkDuplicateNumbers(salao){
 
 function evolvePopulation(pop){
 	var pop2 = new Populacao();
+	var inicio = 0;
+	if(elitismo){
+		inicio = 1;
+		var salaoFittest = pop.fittestSalao();
+		var indiceFittest = pop.saloes.indexOf(salaoFittest);
+		var change = pop.saloes[0];
+		pop.saloes[0] = salaoFittest;
+		pop.saloes[indiceFittest] = change;
+		pop2.saloes.push(salaoFittest);
 
-	for(var i = 0; i<pop.saloes.length; i++){
+		//debug
+		var debugFittest = pop2.fittestSalao();
+		var debugIndex = pop2.saloes.indexOf(debugFittest);
+		console.log("Fittest: "+debugFittest.soma()+" at "+debugIndex);
+	}
+
+	for(var i = inicio; i<pop.saloes.length; i++){
 		var salao1 = torneio(pop);
 		var salao2 = torneio(pop);	
 		var salao_filho = crossover(salao1, salao2);
 		pop2.saloes.push(salao_filho);
 	}
-
-	for(var i = 0; i<pop2.saloes.length; i++){
-		if(Math.random()>mutationRate){
+	for(var i = inicio; i<pop2.saloes.length; i++){
+		var chance = Math.random();
+		if(chance<=mutationRate){
 			mutacao(pop2.saloes[i]);
 		}
 	}
@@ -181,26 +246,28 @@ function evolvePopulation(pop){
 function Main(){
 	var pop = getInput();
 	for(var i = 0; i<10; i++){
-		document.writeln(pop.fittest());
+		document.writeln("Rodada "+i+": "+pop.fittest()+"<br><br>");
 		pop = evolvePopulation(pop);
 	}
 
 }
 
 function getInput(){
-	var pessoas = 6;
+	var pessoas = 8;
 	var matriz_exemplo = [
-		[1, 10, 5, 0, 0, 0],
-		[10, 1, 3, 0, 0, 0],
-		[5, 3, 1, 1, 0,  0],
-		[0, 0, 0, 1, 10, 3],
-		[0, 0, 0, 10, 1, 7],
-		[0, 0, 0, 3, 7,  1],
+		[ 1, 10,  5,  3,  0,  0,  0,  0],
+		[10,  1,  3,  2,  0,  0,  0,  0],
+		[ 5,  3,  1,  2,  0,   0,  0, 0],
+		[ 3,  2,  2,  1,  0,  0,  0,  0],
+		[ 0,  0,  0,  0,  1,  7, 10,  3],
+		[ 0,  0,  0,  0,  7,  1,  7, 10],
+		[ 0,  0,  0,  0, 10,  7,  1,  5],
+		[ 0,  0,  0,  0,  3, 10,  5,  1]
 	];
 
 	var matriz = relacoes.getInstance();
 	matriz.setMatriz(matriz_exemplo);
-	var mesas = 3;
+	var mesas = 4;
 	var capacidade = 2;
 
 	var pop_inicial = geraPopulacao(pessoas, mesas, capacidade);
