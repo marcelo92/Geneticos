@@ -1,7 +1,43 @@
 <html>
 	<head>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="Chart.js"></script>
 		<script type="text/javascript" src="algoritmo.js"></script>
 	</head>
 	<body>
+		<input type="file" id="arquivo" onchange="readMatriz(this.files)" style="display: block"></input>
+		<canvas id="myChart" width="400" height="400"></canvas>
+		<div class="relatorio">
+		</div>
 	</body>
 </html>
+
+<script>
+function gerarMatriz(){
+	var pessoas = 40;
+	var maximo = 100;
+
+	var matrix = [];
+	for(var i = 0; i<pessoas; i++){
+		matrix[i] = [];
+	}
+	for(var i = 0; i<pessoas; i++){
+		var line = [];
+		for(var j = 0; j<pessoas; j++){
+			var numero = (Math.random()*maximo).toFixed(0);
+			if(i==j){
+				numero = 1;	
+			}
+			matrix[i][j] = numero;
+			matrix[j][i] = numero;
+		}
+	}
+
+	for(var i=0; i<pessoas; i++){
+		for(var j = 0; j<pessoas;j++){
+			document.write(matrix[i][j]+" ");
+		}
+		document.write("<br>");
+	}
+}
+</script>

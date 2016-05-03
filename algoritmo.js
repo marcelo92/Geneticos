@@ -2,6 +2,7 @@
 var torneioSize = 5;
 var mutationRate = 0.15;
 var populacao = 8;
+var iteracoes = 200;
 var elitismo = true;
 
 /* Matriz de relacoes (singleton)*/
@@ -244,16 +245,57 @@ function evolvePopulation(pop){
 }
 
 function Main(){
+	var resultados = [];
 	var pop = getInput();
-	for(var i = 0; i<10; i++){
-		document.writeln("Rodada "+i+": "+pop.fittest()+"<br><br>");
+	$(".relatorio").append("Inicio: "+pop.fittest());
+	for(var i = 0; i<iteracoes; i++){
+		resultados.push(pop.fittest());
 		pop = evolvePopulation(pop);
 	}
+	$(".relatorio").append("<br>Fim: "+pop.fittest());
+
+	var ctx = document.getElementById("myChart");
+
+	var labels = [];
+	for(var i = 0; i<iteracoes; i++){
+		labels[i] = i;
+	}
+	Chart.defaults.global.responsive = true;
+	Chart.defaults.global.maintainAspectRatio = false;
+	var barData = {
+	    labels: labels,
+	    datasets: [
+		        {
+		            label: '2014 customers #',
+		            fillColor: '#7BC225',
+		            data: resultados
+		        }
+	    	]
+	};
+	var skillsChart = new Chart(ctx, {
+		type: 'line',
+	    data: {
+	        labels: labels,
+	        datasets: [{
+	            label: 'Fittest',
+	            data: resultados
+	        }]
+	    },
+	    options: {
+	        scales: {
+	            yAxes: [{
+	                ticks: {
+	                    beginAtZero:true
+	                }
+	            }]
+	        }
+	    }
+	});
 
 }
 
 function getInput(){
-	var pessoas = 8;
+/*
 	var matriz_exemplo = [
 		[ 1, 10,  5,  3,  0,  0,  0,  0],
 		[10,  1,  3,  2,  0,  0,  0,  0],
@@ -264,16 +306,36 @@ function getInput(){
 		[ 0,  0,  0,  0, 10,  7,  1,  5],
 		[ 0,  0,  0,  0,  3, 10,  5,  1]
 	];
-
 	var matriz = relacoes.getInstance();
 	matriz.setMatriz(matriz_exemplo);
-	var mesas = 4;
-	var capacidade = 2;
+	*/
 
+	var mesas = 8;
+	var capacidade = 5;
+
+	var matriz = relacoes.getInstance().getMatriz();
+	var pessoas = matriz[0].length;
 	var pop_inicial = geraPopulacao(pessoas, mesas, capacidade);
 	return pop_inicial;
 
 
+}
+
+function readMatriz(files){
+	var file = files[0];
+	var reader = new FileReader();
+	var linhas = [];
+	reader.onload = function(e){ 
+		console.log(reader.result);
+		linhas = reader.result.trim().split("\n");
+		for(var i = 0; i<linhas.length; i++){ 
+			linhas[i] = linhas[i].trim().split(" ").map(Number);
+		};
+		var matriz = relacoes.getInstance();
+		matriz.setMatriz(linhas);
+		Main();
+	}
+	reader.readAsText(file);
 }
 
 function geraPopulacao(pessoas, mesas, capacidade){
