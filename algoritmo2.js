@@ -1,9 +1,8 @@
 /*Parametros*/
-var parada = 100; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
-var novaGeracao = 25;
-var torneioSize = 20;
-var mutationRate = 0.15;
-var populacao = 50;	
+var parada = 300; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
+var novaGeracao = 75;
+var mutationRate = 0.90;
+var populacao = 100;	
 
 /* Matriz de relacoes (singleton)*/
 var relacoes = (function(){
@@ -146,7 +145,7 @@ function cloneMesa(obj){
 }
 
 function roleta(pop){
-	var rand = Math.random()* (pop.somaTotal() - pop.somas[0] + 1) + pop.somas[0];
+	var rand = Math.random()* (pop.somaTotal() - pop.somas[0]) + pop.somas[0];
 	for(var i = 0; i<pop.somas.length; i++){
 		if(pop.somas[i] >= rand){
 			return pop.saloes[i];
@@ -156,9 +155,13 @@ function roleta(pop){
 
 function crossover(salao1, salao2){
 	var salao_filho = salao();
-	var mesa_random = (Math.random()*(salao1.mesas.length-1)).toFixed(0);
+	var mesa_random1 = (Math.random()*(salao1.mesas.length-1)).toFixed(0);
+	var mesa_random2 = (Math.random()*(salao1.mesas.length-1)).toFixed(0);
+	if(mesa_random2>mesa_random1){
+		mesa_random2 = [mesa_random1, mesa_random1 = mesa_random2][0];
+	}
 	for(var i = 0; i<salao1.mesas.length; i++){
-		if(i<mesa_random){
+		if(i>=mesa_random1 && i<=mesa_random2){
 			salao_filho.mesas.push(cloneMesa(salao1.mesas[i]));
 		}else{
 			salao_filho.mesas.push(cloneMesa(salao2.mesas[i]));
@@ -186,16 +189,19 @@ function crossover(salao1, salao2){
 }
 
 function mutacao(salao){
-	var mesa1 = (Math.random()*(salao.mesas.length-1)).toFixed(0);
-	var mesa2 = (Math.random()*(salao.mesas.length-1)).toFixed(0);
-	if(mesa1==mesa2){
-		mesa2 = (Number(mesa2)+1)%salao.mesas.length;
+	var mesaRand = (Math.random()*(salao.mesas.length-1)).toFixed(0);
+
+	for(var i = 0; i<salao.mesas[mesaRand].ocupantes.length; i++){
+		var mesa2 = (Math.random()*(salao.mesas.length-1)).toFixed(0);
+		if(mesaRand==mesa2){
+			mesa2 = (Number(mesa2)+1)%salao.mesas.length;
+		}
+		var indiceRand = (Math.random())*(salao.mesas[mesa2].ocupantes.length-1).toFixed(0);
+		
+		var swap = salao.mesas[mesaRand].ocupantes.splice(i, 1);
+		salao.mesas[mesaRand].ocupantes = salao.mesas[mesaRand].ocupantes.concat(salao.mesas[mesa2].ocupantes.splice(indiceRand,1));
+		salao.mesas[mesa2].ocupantes = salao.mesas[mesa2].ocupantes.concat(swap);
 	}
-	var qnt = (Math.random()*(salao.mesas[mesa1].ocupantes.length-1)).toFixed(0);
-	if(qnt==0) qnt++;
-	var swap = salao.mesas[mesa1].ocupantes.splice(0, qnt);
-	salao.mesas[mesa1].ocupantes = salao.mesas[mesa1].ocupantes.concat(salao.mesas[mesa2].ocupantes.splice(0,qnt));
-	salao.mesas[mesa2].ocupantes = salao.mesas[mesa2].ocupantes.concat(swap);
 }
 
 function checkMissingNumbers(salao){
@@ -240,7 +246,7 @@ function evolvePopulation(pop){
 	pop.saloes.splice(0, novaGeracao);
 	pop.calculaSomas();
 
-	console.log(pop.fittest());
+	//console.log(pop.fittest());
 	for(var i = 0; i<novaGeracao; i++){
 		var salao1 = roleta(pop);
 		var salao2 = roleta(pop);	
@@ -395,8 +401,10 @@ function geraPopulacao(pessoas, mesas, capacidade){
 }
 
 function Main(){
+	var now = new Date();
 	var melhoras = [];
-	//for(var teste = 0; teste<5; teste++){
+	var melhores = []
+	for(var teste = 0; teste<5; teste++){
 		var resultados = [];
 		var evolucao = [];
 		var pop = getInput();
@@ -416,20 +424,25 @@ function Main(){
 			}
 		}
 		var ultimoResultado = pop.fittest();
+		melhores.push(ultimoResultado);
 		$(".relatorio").append("<br>Fim: "+ultimoResultado);
 		var melhora = (ultimoResultado/primeiroResultado)-1;
 		melhoras.push(melhora);
 		$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
 		console.log("Estou vivo");
-	//}
-	/*
-	var soma = 0;
-	for(var i = 0; i<5; i++){
-		soma = soma + melhoras[i];
 	}
-	var media = soma/5;
-	$(".relatorio").append("<br><br>Media: "+ media);
+	
+	var soma = 0;
+		for(var i = 0; i<5; i++){
+			soma = soma + melhores[i];
+		}
+		var media = soma/5;
+		$(".relatorio").append("<br><br>Media: "+ media);
+
+	var after = new Date();
+	var span = after-now;
+	$(".relatorio").append("<br><br>Tempo decorrido: "+ (span/60000)+" minutos");
 	//createChartResultados(resultados);
 	//createChartEvolucao(evolucao);
-	*/
+	
 }

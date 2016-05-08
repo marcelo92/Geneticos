@@ -1,8 +1,8 @@
 /*Parametros*/
-var torneioSize = 15;
-var mutationRate = 0.50;
-var populacao = 30;
-var iteracoes = 1000;	
+var torneioSize = 10;
+var mutationRate = 0.90;
+var populacao = 40;
+var iteracoes = 700;	
 var elitismo = true;
 
 /* Matriz de relacoes (singleton)*/
@@ -226,7 +226,7 @@ function evolvePopulation(pop){
 		//debug
 		var debugFittest = pop2.fittestSalao();
 		var debugIndex = pop2.saloes.indexOf(debugFittest);
-		console.log("Fittest: "+debugFittest.soma()+" at "+debugIndex);
+		//console.log("Fittest: "+debugFittest.soma()+" at "+debugIndex);
 	}
 
 	for(var i = inicio; i<pop.saloes.length; i++){
@@ -378,33 +378,45 @@ function geraPopulacao(pessoas, mesas, capacidade){
 }
 
 function Main(){
-	var melhoras = [];
-	for(var teste = 0; teste<5; teste++){
-		var resultados = [];
-		var evolucao = [];
-		var pop = getInput();
-		var primeiroResultado = pop.fittest();
-		$(".relatorio").append("<br>Inicio: "+primeiroResultado);
-		resultados.push(pop.fittest());
-		for(var i = 1; i<=iteracoes; i++){
+	var now = new Date();
+	//for(var chgMut = 0; chgMut<4; chgMut++){
+		console.log("Populacao: "+populacao);
+		var melhoras = [];
+		var melhores = [];
+		for(var teste = 0; teste<5; teste++){
+			console.log("Teste: "+teste);
+			var resultados = [];
+			var evolucao = [];
+			var pop = getInput();
+			var primeiroResultado = pop.fittest();
+			$(".relatorio").append("<br>Inicio: "+primeiroResultado);
 			resultados.push(pop.fittest());
-			var evolRelativa = (resultados[i-1]/resultados[i]);
-			evolucao.push(evolRelativa);
-			pop = evolvePopulation(pop);
+			for(var i = 1; i<=iteracoes; i++){
+				resultados.push(pop.fittest());
+				var evolRelativa = (resultados[i-1]/resultados[i]);
+				evolucao.push(evolRelativa);
+				pop = evolvePopulation(pop);
+			}
+			var ultimoResultado = pop.fittest();
+			melhores.push(ultimoResultado);
+			$(".relatorio").append("<br>Fim: "+ultimoResultado);
+			var melhora = (ultimoResultado/primeiroResultado)-1;
+			melhoras.push(melhora);
+			$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
+			console.log("Estou vivo");
 		}
-		var ultimoResultado = pop.fittest();
-		$(".relatorio").append("<br>Fim: "+ultimoResultado);
-		var melhora = (ultimoResultado/primeiroResultado)-1;
-		melhoras.push(melhora);
-		$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
-		console.log("Estou vivo");
-	}
-	var soma = 0;
-	for(var i = 0; i<5; i++){
-		soma = soma + melhoras[i];
-	}
-	var media = soma/5;
-	$(".relatorio").append("<br><br>Media: "+ media);
+		var soma = 0;
+		for(var i = 0; i<5; i++){
+			soma = soma + melhores[i];
+		}
+		var media = soma/5;
+		$(".relatorio").append("<br><br>Media: "+ media);
+		populacao += 20;
+		
+	//}
+	var after = new Date();
+	var span = after-now;
+	$(".relatorio").append("<br><br>Tempo decorrido: "+ (span/60000)+" minutos");
 	//createChartResultados(resultados);
 	//createChartEvolucao(evolucao);
 }

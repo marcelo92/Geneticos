@@ -4,7 +4,7 @@ Entrada:
 	capacidade de cada mesa: 10
 
 Algoritmo1:
-	crossover: são escolhidos dois individuos por torneio, e aleatoriamente são trocadas mesas entre eles, depois são corrigidas
+	crossover: são escolhidos dois individuos por torneio, e aleatoriamente são trocadas mesas entre eles, depois são corrigidas (ponto unico)
 	mutacao: umq qnt aleatoria de individuos de duas mesas escolhidas aleatoriamente são trocados de lugar (swap)
 	seleção: por torneio, são escolhidos X individuos aleatorios de uma população, é retornado o melhor deles.
 	critério de parada: 1000 iterações
@@ -12,23 +12,33 @@ Algoritmo1:
 
 População | Torneio | taxa de mutação | elitismo | Resultados (media)
 -------------------------------------------------------------------
-30        | 5       | 0.15            | 1        | 16,9%
+30        | 5       | 0.15            | 1        | 16,9% 28531
 30        | 15      | 0.15            | 1        | 17,6%
 30        | 5       | 0.35            | 1        | 20,3%
-30        | 5       | 0.50            | 0        | 23,7%
-30        | 15      | 0.50            | 1        | 17,2%
-30        | 5       | 0.15            | 0        | 16,8%
+30        | 5       | 0.50            | 1        | 21,9% 29379
+30        | 15      | 0.50            | 1        | 17,2% 28474
 30        | 15      | 0.35            | 1        | 19,1%
 10        | 5       | 0.35            | 1        | 19,0%
-10        | 5       | 0.15            | 0        | 17,9%
 50        | 25      | 0.50            | 1        | 23,1%
 
 Algoritmo2:
 	critério de parada: não houve modificação no resultado nas ultimas 100 iterações
 	seleção: metodo da roleta, é selecionado um individuo com valor de soma agregada >= ao aleatorio
 	troca: são gerados M indivudos, que substituem os M piores da população
-	mutacao: a mesa de menor valor é destruida e copiamos a de maior valor, então o individuo é corrigido
-	crossover:
+	mutacao: uma mesa é escolhida para trocar todos os individuos com mesas aleatorias
+	crossover: crossover de ponto duplo.
 
+População | Torneio | taxa de mutação | parada   | troca        |Resultados (media)
+-------------------------------------------------------------------------------------
+30        | 5       | 0.15            | 1        |              |
+30        | 15      | 0.15            | 1        |              | 
+30        | 5       | 0.35            | 1        |              |  
+30        | 5       | 0.50            | 0        |              |  
+30        | 15      | 0.50            | 1        |              |  
+30        | 5       | 0.15            | 0        |              |  
+30        | 15      | 0.35            | 1        |              |  
+10        | 5       | 0.35            | 1        |              |  
+10        | 5       | 0.15            | 0        |              |  
+50        | 25      | 0.50            | 1        |              |  
 
 
