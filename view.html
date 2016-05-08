@@ -2,19 +2,18 @@
 	<head>
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="Chart.js"></script>
-		<script type="text/javascript" src="algoritmo.js"></script>
+		<script type="text/javascript" src="algoritmo2.js"></script>
 	</head>
 	<body>
 		<input type="file" id="arquivo" onchange="readMatriz(this.files)" style="display: block"></input>
-		<canvas id="myChart" width="400" height="400"></canvas>
-		<div class="relatorio">
-		</div>
+		<div class="relatorio">	</div>
+		<canvas id="resultados" width="400" height="400"></canvas>
+		<canvas id="evolucao" width="400" height="400"></canvas>
 	</body>
 </html>
 
 <script>
-function gerarMatriz(){
-	var pessoas = 40;
+function gerarMatriz(pessoas){
 	var maximo = 100;
 
 	var matrix = [];

@@ -1,9 +1,9 @@
 /*Parametros*/
-var torneioSize = 15;
-var mutationRate = 0.50;
-var populacao = 30;
-var iteracoes = 1000;	
-var elitismo = true;
+var parada = 100; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
+var novaGeracao = 25;
+var torneioSize = 20;
+var mutationRate = 0.15;
+var populacao = 50;	
 
 /* Matriz de relacoes (singleton)*/
 var relacoes = (function(){
@@ -31,6 +31,26 @@ var relacoes = (function(){
 
 var Populacao = function(){
 	this.saloes = [];
+
+	//ordena os individuos por aptidao
+	this.ordenar = function(){
+		this.saloes.sort(function(a,b){
+			return a.soma()-b.soma();
+		})
+	}
+
+	this.somas = [];
+
+	this.calculaSomas = function(){
+		this.somas[0] = this.saloes[0].soma();
+		for(var i = 1; i<this.saloes.length; i++){
+			this.somas[i] = this.somas[i-1] + this.saloes[i].soma();
+		}
+	}
+
+	this.somaTotal = function(){
+		return this.somas[this.somas.length-1];
+	}
 
 	this.fittest = function(){
 		var fittest = 0;
@@ -125,13 +145,13 @@ function cloneMesa(obj){
     return copy;
 }
 
-function torneio(pop){
-	var pop_torneio = new Populacao();
-	for(var i = 0;i<torneioSize; i++){
-		var rand = (Math.random()*(pop.saloes.length-1)).toFixed(0);
-		pop_torneio.saloes.push(pop.saloes[rand]);
+function roleta(pop){
+	var rand = Math.random()* (pop.somaTotal() - pop.somas[0] + 1) + pop.somas[0];
+	for(var i = 0; i<pop.somas.length; i++){
+		if(pop.somas[i] >= rand){
+			return pop.saloes[i];
+		}
 	}
-	return pop_torneio.fittestSalao();
 }
 
 function crossover(salao1, salao2){
@@ -214,27 +234,24 @@ function checkDuplicateNumbers(salao){
 function evolvePopulation(pop){
 	var pop2 = new Populacao();
 	var inicio = 0;
-	if(elitismo){
-		inicio = 1;
-		var salaoFittest = pop.fittestSalao();
-		var indiceFittest = pop.saloes.indexOf(salaoFittest);
-		var change = pop.saloes[0];
-		pop.saloes[0] = salaoFittest;
-		pop.saloes[indiceFittest] = change;
-		pop2.saloes.push(salaoFittest);
 
-		//debug
-		var debugFittest = pop2.fittestSalao();
-		var debugIndex = pop2.saloes.indexOf(debugFittest);
-		console.log("Fittest: "+debugFittest.soma()+" at "+debugIndex);
-	}
+	//elimina os X piores individuos, e gera X novos por crossover nos melhores
+	pop.ordenar();
+	pop.saloes.splice(0, novaGeracao);
+	pop.calculaSomas();
 
-	for(var i = inicio; i<pop.saloes.length; i++){
-		var salao1 = torneio(pop);
-		var salao2 = torneio(pop);	
+	console.log(pop.fittest());
+	for(var i = 0; i<novaGeracao; i++){
+		var salao1 = roleta(pop);
+		var salao2 = roleta(pop);	
 		var salao_filho = crossover(salao1, salao2);
 		pop2.saloes.push(salao_filho);
 	}
+	//copia o resto da populacao antiga (os X melhores) na nova
+	for(var i=novaGeracao; i<populacao; i++){
+		pop2.saloes.push(pop.saloes.pop());
+	}
+
 	for(var i = inicio; i<pop2.saloes.length; i++){
 		var chance = Math.random();
 		if(chance<=mutationRate){
@@ -379,18 +396,24 @@ function geraPopulacao(pessoas, mesas, capacidade){
 
 function Main(){
 	var melhoras = [];
-	for(var teste = 0; teste<5; teste++){
+	//for(var teste = 0; teste<5; teste++){
 		var resultados = [];
 		var evolucao = [];
 		var pop = getInput();
 		var primeiroResultado = pop.fittest();
 		$(".relatorio").append("<br>Inicio: "+primeiroResultado);
 		resultados.push(pop.fittest());
-		for(var i = 1; i<=iteracoes; i++){
+		for(var i = 1; true; i++){
 			resultados.push(pop.fittest());
 			var evolRelativa = (resultados[i-1]/resultados[i]);
 			evolucao.push(evolRelativa);
 			pop = evolvePopulation(pop);
+			if(i>parada){
+				//caso o resultado nao tenha mudado nas ultimas 
+				if(resultados[i-parada]==resultados[i]){
+					break;
+				}
+			}
 		}
 		var ultimoResultado = pop.fittest();
 		$(".relatorio").append("<br>Fim: "+ultimoResultado);
@@ -398,7 +421,8 @@ function Main(){
 		melhoras.push(melhora);
 		$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
 		console.log("Estou vivo");
-	}
+	//}
+	/*
 	var soma = 0;
 	for(var i = 0; i<5; i++){
 		soma = soma + melhoras[i];
@@ -407,4 +431,5 @@ function Main(){
 	$(".relatorio").append("<br><br>Media: "+ media);
 	//createChartResultados(resultados);
 	//createChartEvolucao(evolucao);
+	*/
 }
