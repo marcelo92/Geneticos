@@ -1,7 +1,7 @@
-/*Parametros*/
+ /*Parametros*/
 var parada = 300; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
-var novaGeracao = 75;
-var mutationRate = 0.90;
+var novaGeracao = 60;
+var mutationRate = 0.60;
 var populacao = 100;	
 
 /* Matriz de relacoes (singleton)*/
@@ -401,43 +401,50 @@ function geraPopulacao(pessoas, mesas, capacidade){
 }
 
 function Main(){
-	var now = new Date();
-	var melhoras = [];
-	var melhores = []
-	for(var teste = 0; teste<5; teste++){
-		var resultados = [];
-		var evolucao = [];
-		var pop = getInput();
-		var primeiroResultado = pop.fittest();
-		$(".relatorio").append("<br>Inicio: "+primeiroResultado);
-		resultados.push(pop.fittest());
-		for(var i = 1; true; i++){
+	var now = new Date(); 
+	//for(var chgMut = 0; chgMut<4; chgMut++){ 
+	setTimeout(function(){
+		console.log("novaGeracao: "+novaGeracao);
+		var melhoras = [];
+		var melhores = []
+		for(var teste = 0; teste<5; teste++){
+			console.log("Teste: "+ teste);
+			var resultados = [];
+			var evolucao = [];
+			var pop = getInput();
+			var primeiroResultado = pop.fittest();
+			$(".relatorio").append("<br>Inicio: "+primeiroResultado);
 			resultados.push(pop.fittest());
-			var evolRelativa = (resultados[i-1]/resultados[i]);
-			evolucao.push(evolRelativa);
-			pop = evolvePopulation(pop);
-			if(i>parada){
-				//caso o resultado nao tenha mudado nas ultimas 
-				if(resultados[i-parada]==resultados[i]){
-					break;
+			for(var i = 1; true; i++){
+				resultados.push(pop.fittest());
+				var evolRelativa = (resultados[i-1]/resultados[i]);
+				evolucao.push(evolRelativa);
+				pop = evolvePopulation(pop);
+				if(i>parada){
+					//caso o resultado nao tenha mudado nas ultimas 
+					if(resultados[i-parada]==resultados[i]){
+						break;
+					}
 				}
 			}
+			var ultimoResultado = pop.fittest();
+			melhores.push(ultimoResultado);
+			$(".relatorio").append("<br>Fim: "+ultimoResultado);
+			var melhora = (ultimoResultado/primeiroResultado)-1;
+			melhoras.push(melhora);
+			$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
+			console.log("Fittest: "+ ultimoResultado);
 		}
-		var ultimoResultado = pop.fittest();
-		melhores.push(ultimoResultado);
-		$(".relatorio").append("<br>Fim: "+ultimoResultado);
-		var melhora = (ultimoResultado/primeiroResultado)-1;
-		melhoras.push(melhora);
-		$(".relatorio").append("<br>Melhora: "+ melhora+"<br>");
-		console.log("Estou vivo");
-	}
-	
-	var soma = 0;
+		
+		var soma = 0;
 		for(var i = 0; i<5; i++){
 			soma = soma + melhores[i];
 		}
 		var media = soma/5;
 		$(".relatorio").append("<br><br>Media: "+ media);
+		
+	}, 10);
+	
 
 	var after = new Date();
 	var span = after-now;

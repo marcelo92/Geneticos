@@ -1,0 +1,256 @@
+%% Adaptado de 
+%% http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran/
+%% Traduzido para o congresso de IC da USP
+%%*****************************************************************************
+% Não modificar
+
+\documentclass[twoside,conference,a4paper]{IEEEtran}
+
+%******************************************************************************
+% Não modificar
+%\usepackage{IEEEtsup} % Definições complementares e modificações.
+\usepackage[latin1]{inputenc} % Disponibiliza acentos.
+\usepackage[english,brazil]{babel}
+%% Disponibiliza Inglês e Português do Brasil.
+\usepackage{latexsym,amsfonts,amssymb} % Disponibiliza fontes adicionais.
+\usepackage{theorem} 
+\usepackage[cmex10]{amsmath} % Pacote matemático básico 
+\usepackage{url} 
+%\usepackage[portuges,brazil,english]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage[tight,footnotesize]{subfigure} 
+\usepackage[noadjust]{cite} % Disponibiliza melhorias em citações.
+%%*****************************************************************************
+
+\begin{document}
+%\selectlanguage{brazil}
+\renewcommand{\IEEEkeywordsname}{Palavras-chave}
+
+%%*****************************************************************************
+
+\urlstyle{tt}
+% Indicar o nome do autor e o curso/nível (grad-mestrado-doutorado-especial)
+\title{Seat Assignment e Algoritmos Genéticos}
+\author{%
+ \IEEEauthorblockN{Marcelo A. Teixeira\,\IEEEauthorrefmark{1}}
+ \IEEEauthorblockA{\IEEEauthorrefmark{1}%
+                   Ciência da Computação - Graduação \\
+                   E-mail: marceloat01@gmail.com}
+}
+
+%%*****************************************************************************
+
+\maketitle
+
+%%*****************************************************************************
+% Resumo do trabalho
+\begin{abstract}
+ 
+\end{abstract}
+
+% Indique três palavras-chave que descrevem o trabalho
+\begin{IEEEkeywords}
+ Seat Assignment Algoritmos Genéticos
+\end{IEEEkeywords}
+
+%%*****************************************************************************
+% Modifique as seções de acordo com o seu projeto
+
+\section{Introdução}
+O problema de Seat Assignment se baseia em decidir em quais mesas pessoas irão se sentar, tendo em vista a relação umas com as outras,
+descrita em uma tabela. Essa tabela é dada em forma de numeros, de forma que quanto maior for o numero melhor é a relação entre as pessoas.
+A cada mesa pode ser dado um valor que é a soma das relações entre todas as pessoas sentadas ali, queremos otimizar esse valor.
+
+Removendo as restrições, esse problema pode ser resovlido por algortimo bruteforce[2], com tempo fatorial. Então utilizei algoritmos
+genéticos para resolver o problema em tempo consideravelmente melhor.
+
+Foram utilizados duas versões do algortimo nesse trabalho, em cada uma modificando alguns métodos, e nos dois foram variados todos
+os parametros para fins de comparação.
+
+
+
+\section{Linguagem de programação}
+
+A linguagem escolhida nesse trabalho foi o {\it Javascript} por dois motivos: o autor possui amplo conhecimento e prática com a linguagem; 
+e unindo as tecnologias web de HTML, CSS, entre outros, é possivel demonstrar resultados em uma pagina de browser com gráficos e opçõpes dinamicas de parametros.
+
+O código fonte submetido com esse trabalho engloba todos os arquivos necessarios e um README com as instruções de como visuzalizar os resultados.
+
+\subsection{Modelagem}
+
+O problema foi moldado na forma de objetos (ou protótipos, do javascript), uma {\it População} possui um conjunto de {\it salões},
+por sua vez, cada salão possui um conjunto de {\it mesas}, e cada mesa possui seus {\it ocupantes}. As palavras grifadas são os protótipos
+e possuem métodos para manipular seus atributos.
+
+O valor de uma mesa é calculado somando as relações de todos os seus ocupantes segundo uma tabela dada. O valor do salão é a soma de todas as
+suas mesas, e esse é o valor que queremos otimizar no final de todas as iterações.
+
+A tabela de entrada foi criada aleatoriamente, com 100 pessoas, e foram consideradas 10 mesas com 10 ocupantes cada.
+
+\section{Trabalho Proposto}
+
+Foram feitos dois algoritmos diferentes, cada um contendo métodos distintos de certos parametros, descritos abaixo:
+
+Algoritmo 1:
+\begin{LaTeXdescription}
+ \item[substituição] Troca-se todos os individuos da população pai pela população filho, exceto pelo mais apto (Elitismo).
+ \item[seleção] Torneio, escolhe-se um numero X de individuos aleatorios da população e é retornado o mais apto.
+ \item[critério de parada] Numero de gerações, foi escolhido o numero 1000.
+ \item[mutação] swap, uma quantidade aleatoria de individuos de duas mesas escolhidas aleatoriamente são trocados de lugar
+ \item[crossover] ponto unico, o individuo filho recebe de 0 até X mesas de um pai, e de X até 10 mesas de outro.
+\end{LaTeXdescription}
+
+Algoritmo 2:
+\begin{LaTeXdescription}
+ \item[substituição] São gerados M individuos, eles substituem os M piores individuos da geração anterior.
+ \item[seleção] Método da Roleta, a população mantem um vetor de soma das aptidões, e um valor aleatorio é escolhido correspondete
+ a um indice nesse vetor.
+ \item[critério de parada] O algoritmo para quando não houver melhora no resultado nas ultimas P iterações
+ \item[mutação] swap de sequencia, uma mesa inteira tem seus individuos trocados com outras mesas, aleatoriamente.
+ \item[crossover] ponto duplo, o individuo filho recebe genes não sequenciais (com dois cortes) de dois individuos pais.
+\end{LaTeXdescription}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando mutação}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30269} \\ \cline{2-4}
+  Pop & Torneio & Mutação & Média & Melhor \\ \hline \hline
+  50      & 10     & 15\%   & 28012,2 & 28544  \\
+  50      & 10     & 30\%   & 28262,6 & 29005\\
+  50      & 10     & 45\%   & 28565,8 & 29458 \\
+  50      & 10     & 60\%   & 28921,2 & 29550 \\
+  50      & 10     & 75\%   & 29289,6 & 29727 \\
+  50      & 10     & 90\%   & 29933,6 & 30269 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando torneio}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 29947} \\ \cline{2-4}
+  Pop & Torneio & Mutação & Média & Melhor \\ \hline \hline
+  50      & 10     & 75\%   & 29289 & 29947 \\
+  50      & 20     & 75\%   & 28636 & 29136 \\
+  50      & 30     & 75\%   & 27975,6 & 28942 \\
+  50      & 40     & 75\%   & 28148,8 & 28802 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando população}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30024} \\ \cline{2-4}
+  Pop & Torneio & Mutação & Média & Melhor \\ \hline \hline
+  20      & 10     & 75\%   & 28642 & 29104 \\
+  40      & 10     & 75\%   & 29579 & 29861 \\
+  60      & 10     & 75\%   & 29504 & 29637 \\
+  80      & 10     & 75\%   & 29695 & 30024 \\
+  10      & 10     & 75\%   & 29435 & 29657 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 2 - variando mutação}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30024} \\ \cline{2-4}
+  Pop & Nova Geração& Mutação & Média & Melhor \\ \hline \hline
+  100      & 80     & 15\%   & 28642 & 29104 \\
+  100      & 80     & 30\%   & 29579 & 29861 \\
+  100      & 80     & 45\%   & 29504 & 29637 \\
+  100      & 80     & 75\%   & 29695 & 30024 \\
+  100      & 80     & 90\%   & 29435 & 29657 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando população}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30024} \\ \cline{2-4}
+  Pop & Nova Geração & Mutação & Parada & Média & Melhor \\ \hline \hline
+  20      & 10     & 15\%   & 300 & 27284.6 & 27408 \\
+  40      & 10     & 30\%   & 300 & 27857.4 & 28206 \\
+  60      & 10     & 45\%   & 300 & 27728.2 & 28421 \\
+  80      & 10     & 60\%   & 300 & 28143.4 & 28600 \\
+  10      & 10     & 75\%   & 300 & 27800.2 & 28048\\
+  10      & 10     & 90\%   & 300 & & \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando população}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30024} \\ \cline{2-4}
+  Pop & Torneio & Mutação & Média & Melhor \\ \hline \hline
+  20      & 10     & 75\%   & 28642 & 29104 \\
+  40      & 10     & 75\%   & 29579 & 29861 \\
+  60      & 10     & 75\%   & 29504 & 29637 \\
+  80      & 10     & 75\%   & 29695 & 30024 \\
+  10      & 10     & 75\%   & 29435 & 29657 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.3}
+\centering
+ \caption{Algoritmo 1 - variando população}
+ \label{tab:tab1}
+ \begin{tabular}{lcccc}\hline
+  & \multicolumn{2}{c}{Melhor resultado: 30024} \\ \cline{2-4}
+  Pop & Torneio & Mutação & Média & Melhor \\ \hline \hline
+  20      & 10     & 75\%   & 28642 & 29104 \\
+  40      & 10     & 75\%   & 29579 & 29861 \\
+  60      & 10     & 75\%   & 29504 & 29637 \\
+  80      & 10     & 75\%   & 29695 & 30024 \\
+  10      & 10     & 75\%   & 29435 & 29657 \\ \hline
+  
+ \end{tabular}
+\end{table}
+
+\section{Materiais e Métodos}
+
+\section{Resultados e Discussão}
+
+\section{Conclusões}
+
+
+%******************************************************************************
+% Referências - Definidas no arquivo Relatorio.bib
+ +-------------+
+
+ [1] S. Gotshall, B. Rylander (1992). Optimal population size and the Genetic Algorithm.  {\it School of Engineering, University of Portland}
+ 
+ [2] M. Bellows (2012). http://www.neatorama.com/2012/09/18/Finding-an-Optimal-Seating-Chart/. {\it Princeton University}
+ 
+
+
+%******************************************************************************
+
+\end{document}
