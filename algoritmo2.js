@@ -1,8 +1,8 @@
  /*Parametros*/
-var parada = 300; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
-var novaGeracao = 60;
-var mutationRate = 0.60;
-var populacao = 100;	
+var parada = 1000; //criterio de parada, nao houve melhora no resultado nas ultimas {parada} iteracoes
+var novaGeracao = 900;
+var mutationRate = 0.70;
+var populacao = 1000;	
 
 /* Matriz de relacoes (singleton)*/
 var relacoes = (function(){
@@ -407,7 +407,7 @@ function Main(){
 		console.log("novaGeracao: "+novaGeracao);
 		var melhoras = [];
 		var melhores = []
-		for(var teste = 0; teste<5; teste++){
+		for(var teste = 0; teste<1; teste++){
 			console.log("Teste: "+ teste);
 			var resultados = [];
 			var evolucao = [];

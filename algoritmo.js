@@ -1,8 +1,8 @@
 /*Parametros*/
-var torneioSize = 10;
+var torneioSize = 250;
 var mutationRate = 0.90;
-var populacao = 40;
-var iteracoes = 700;	
+var populacao = 1000;
+var iteracoes = 1000;	
 var elitismo = true;
 
 /* Matriz de relacoes (singleton)*/
@@ -383,7 +383,7 @@ function Main(){
 		console.log("Populacao: "+populacao);
 		var melhoras = [];
 		var melhores = [];
-		for(var teste = 0; teste<5; teste++){
+		for(var teste = 0; teste<1; teste++){
 			console.log("Teste: "+teste);
 			var resultados = [];
 			var evolucao = [];
